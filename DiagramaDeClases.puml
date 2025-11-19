@@ -1,0 +1,56 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam stereotypeCBackgroundColor #DDE6F5
+skinparam stereotypeCFontColor #000000
+
+' ===== ENTIDAD =====
+class EmployeeEntity {
+    - id: Long
+    - firstName: String
+    - lastName: String
+    - email: String
+    + getId(): Long
+    + setId(Long)
+    + getFirstName(): String
+    + setFirstName(String)
+    + getLastName(): String
+    + setLastName(String)
+    + getEmail(): String
+    + setEmail(String)
+}
+
+' ===== REPOSITORIO =====
+interface CrudRepository
+
+interface EmployeeRepository {
+    + findByEmail(String): Optional<EmployeeEntity>
+}
+
+EmployeeRepository --|> CrudRepository
+
+' ===== SERVICIO =====
+class EmployeeService {
+    - repository: EmployeeRepository
+    + getAll(): Iterable<EmployeeEntity>
+    + getById(Long): Optional<EmployeeEntity>
+    + createOrUpdate(EmployeeEntity): EmployeeEntity
+    + delete(Long)
+}
+
+EmployeeService --> EmployeeRepository
+EmployeeService --> EmployeeEntity
+
+' ===== CONTROLADOR MVC =====
+class EmployeeMvcController {
+    - service: EmployeeService
+    + list(Model): String
+    + createForm(Model): String
+    + createOrUpdate(EmployeeEntity): String
+    + edit(Long, Model): String
+    + delete(Long): String
+}
+
+EmployeeMvcController --> EmployeeService
+
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+class com.example.demo.controller.EmployeeMvcController {
+- EmployeeService service
++ <<Create>> EmployeeMvcController(EmployeeService)
++ String list(Model)
++ String createForm(Model)
++ String createOrUpdate(EmployeeEntity)
++ String edit(Long,Model)
++ String delete(Long)
+}
+
+
+class com.example.demo.service.EmployeeService {
+- EmployeeRepository repository
++ <<Create>> EmployeeService(EmployeeRepository)
++ Iterable<EmployeeEntity> getAll()
++ Optional<EmployeeEntity> getById(Long)
++ EmployeeEntity createOrUpdate(EmployeeEntity)
++ void delete(Long)
+}
+
+
+class com.example.demo.model.EmployeeEntity {
+- Long id
+- String firstName
+- String lastName
+- String email
++ Long getId()
++ void setId(Long)
++ String getFirstName()
++ void setFirstName(String)
++ String getLastName()
++ void setLastName(String)
++ String getEmail()
++ void setEmail(String)
+}
+
+
+interface com.example.demo.repository.EmployeeRepository {
+~ Optional<EmployeeEntity> findByEmail(String)
+}
+
+class com.example.demo.controller.RootController {
++ String home()
+}
+
+class com.example.demo.DemoApplication {
++ {static} void main(String[])
+}
+
+
+
+org.springframework.data.repository.CrudRepository <|-- com.example.demo.repository.EmployeeRepository
+@enduml

@@ -1,0 +1,63 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam actorStyle awesome
+skinparam usecaseBorderColor #5D6D7E
+skinparam usecaseBackgroundColor #ECF0F1
+
+actor "Administrador" as Admin
+
+rectangle "Sistema de Gestión de Empleados" {
+
+    ' --- Casos principales ---
+    usecase "UC01 - Listar empleados" as ListEmployees
+    usecase "UC02 - Crear empleado" as CreateEmployee
+    usecase "UC03 - Editar empleado" as EditEmployee
+    usecase "UC04 - Eliminar empleado" as DeleteEmployee
+    usecase "UC05 - Ver detalles empleado" as ViewDetails
+
+    ' --- Subprocesos (incluidos) ---
+    usecase "Mostrar formulario de creación" as ShowCreateForm
+    usecase "Mostrar formulario de edición" as ShowEditForm
+    usecase "Guardar información del empleado" as SaveEmployee
+
+    ' --- Validaciones internas ---
+    usecase "Validar datos del empleado" as ValidateData
+    usecase "Verificar si el email ya existe" as CheckEmailExists
+
+    ' --- Excepciones ---
+    usecase "Error: Email duplicado" as ErrorEmail
+    usecase "Error: Datos incompletos" as ErrorInvalidData
+    usecase "Confirmación de eliminación" as ConfirmDelete
+    usecase "Error: Empleado no encontrado" as ErrorNotFound
+}
+
+' Actor ejecuta casos principales
+Admin --> ListEmployees
+Admin --> CreateEmployee
+Admin --> EditEmployee
+Admin --> DeleteEmployee
+Admin --> ViewDetails
+
+' ---- Includes principales ----
+CreateEmployee --> ShowCreateForm : «include»
+CreateEmployee --> ValidateData : «include»
+CreateEmployee --> SaveEmployee : «include»
+
+EditEmployee --> ShowEditForm : «include»
+EditEmployee --> ValidateData : «include»
+EditEmployee --> SaveEmployee : «include»
+
+DeleteEmployee --> ConfirmDelete : «include»
+
+' ---- Validaciones ----
+ValidateData --> CheckEmailExists : «include»
+
+' ---- Extends (errores) ----
+CheckEmailExists --> ErrorEmail : «extend»
+ValidateData --> ErrorInvalidData : «extend»
+EditEmployee --> ErrorNotFound : «extend»
+ViewDetails --> ErrorNotFound : «extend»
+DeleteEmployee --> ErrorNotFound : «extend»
+
+@enduml

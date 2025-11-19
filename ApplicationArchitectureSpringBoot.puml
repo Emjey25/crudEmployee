@@ -1,0 +1,63 @@
+@startuml
+!define RECTANGLE class
+!theme plain
+
+title Arquitectura de Aplicación Spring Boot - Sistema de Empleados
+
+package "Presentación Layer" {
+  [EmployeeMvcController] <<@Controller>>
+  [RootController] <<@Controller>>
+  [Templates] <<Thymeleaf>>
+}
+
+package "Lógica de Negocio Layer" {
+  [EmployeeService] <<@Service>>
+}
+
+package "Acceso a Datos Layer" {
+  [EmployeeRepository] <<@Repository>>
+  interface "CrudRepository<T,ID>" as CrudRepo
+  [EmployeeEntity] <<@Entity>>
+}
+
+package "Persistencia Layer" {
+  database "H2/MySQL Database" {
+    [employees table]
+  }
+}
+
+package "Configuración" {
+  [application.properties]
+  [schema.sql]
+  [data.sql]
+  [DemoApplication] <<@SpringBootApplication>>
+}
+
+' Relaciones entre capas
+[EmployeeMvcController] --> [EmployeeService] : uses
+[RootController] --> [Templates] : renders
+[EmployeeMvcController] --> [Templates] : renders
+
+[EmployeeService] --> [EmployeeRepository] : uses
+[EmployeeRepository] --> CrudRepo : extends
+[EmployeeRepository] --> [EmployeeEntity] : manages
+
+[EmployeeEntity] --> [employees table] : maps to
+[schema.sql] --> [employees table] : creates
+[data.sql] --> [employees table] : populates
+
+[DemoApplication] --> [application.properties] : loads config
+
+' Flujo de datos
+note right of [EmployeeMvcController] : Maneja requests HTTP\nGET /employees\nPOST /employees\nGET /employees/{id}/edit\nPOST /employees/{id}/delete
+
+note right of [EmployeeService] : Lógica de negocio\n- getAll()\n- getById()\n- createOrUpdate()\n- delete()
+
+note right of [EmployeeRepository] : Acceso a datos\nextends CrudRepository\n+ findByEmail()
+
+note right of [EmployeeEntity] : Entidad JPA\n@Entity employees\n- id (PK)\n- firstName\n- lastName\n- email (unique)
+
+' Tecnologías utilizadas
+note bottom : **Tecnologías:**\n- Spring Boot 3.x\n- Spring MVC\n- Spring Data JPA\n- Jakarta Persistence\n- Thymeleaf\n- H2/MySQL Database\n- Maven
+
+@enduml
