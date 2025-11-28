@@ -1,54 +1,166 @@
 @startuml
-class com.example.demo.controller.EmployeeMvcController {
-- EmployeeService service
-+ <<Create>> EmployeeMvcController(EmployeeService)
-+ String list(Model)
-+ String createForm(Model)
-+ String createOrUpdate(EmployeeEntity)
-+ String edit(Long,Model)
-+ String delete(Long)
+
+title Diagrama de Paquetes UML - CRUD Employee Application
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 35
+skinparam shadowing false
+
+skinparam package {
+    BackgroundColor #FAFAFA
+    BorderColor #455A64
+    FontSize 13
+    FontStyle bold
 }
 
-
-class com.example.demo.service.EmployeeService {
-- EmployeeRepository repository
-+ <<Create>> EmployeeService(EmployeeRepository)
-+ Iterable<EmployeeEntity> getAll()
-+ Optional<EmployeeEntity> getById(Long)
-+ EmployeeEntity createOrUpdate(EmployeeEntity)
-+ void delete(Long)
+skinparam package<<controller>> {
+    BackgroundColor #C8E6C9
+    BorderColor #388E3C
 }
 
-
-class com.example.demo.model.EmployeeEntity {
-- Long id
-- String firstName
-- String lastName
-- String email
-+ Long getId()
-+ void setId(Long)
-+ String getFirstName()
-+ void setFirstName(String)
-+ String getLastName()
-+ void setLastName(String)
-+ String getEmail()
-+ void setEmail(String)
+skinparam package<<service>> {
+    BackgroundColor #FFF9C4
+    BorderColor #F9A825
 }
 
-
-interface com.example.demo.repository.EmployeeRepository {
-~ Optional<EmployeeEntity> findByEmail(String)
+skinparam package<<repository>> {
+    BackgroundColor #FFCCBC
+    BorderColor #E64A19
 }
 
-class com.example.demo.controller.RootController {
-+ String home()
+skinparam package<<model>> {
+    BackgroundColor #E1BEE7
+    BorderColor #7B1FA2
 }
 
-class com.example.demo.DemoApplication {
-+ {static} void main(String[])
+skinparam package<<main>> {
+    BackgroundColor #BBDEFB
+    BorderColor #1976D2
 }
 
+skinparam package<<spring>> {
+    BackgroundColor #B2DFDB
+    BorderColor #00796B
+}
 
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor #546E7A
+    HeaderBackgroundColor #ECEFF1
+    FontSize 10
+}
 
-org.springframework.data.repository.CrudRepository <|-- com.example.demo.repository.EmployeeRepository
+skinparam interface {
+    BackgroundColor #FCE4EC
+    BorderColor #C2185B
+    FontStyle italic
+}
+
+' =============================================
+' PAQUETE PRINCIPAL
+' =============================================
+package "com.example.demo" <<main>> {
+    class DemoApplication {
+        + {static} main(String[]): void
+    }
+}
+
+' =============================================
+' PAQUETE CONTROLLER
+' =============================================
+package "com.example.demo.controller" <<controller>> {
+    class EmployeeMvcController {
+        - service: EmployeeService
+        --
+        + <<Create>> EmployeeMvcController(EmployeeService)
+        + list(Model): String
+        + createForm(Model): String
+        + createOrUpdate(EmployeeEntity): String
+        + edit(Long, Model): String
+        + delete(Long): String
+    }
+
+    class RootController {
+        + home(): String
+    }
+}
+
+' =============================================
+' PAQUETE SERVICE
+' =============================================
+package "com.example.demo.service" <<service>> {
+    class EmployeeService {
+        - repository: EmployeeRepository
+        --
+        + <<Create>> EmployeeService(EmployeeRepository)
+        + getAll(): Iterable<EmployeeEntity>
+        + getById(Long): Optional<EmployeeEntity>
+        + createOrUpdate(EmployeeEntity): EmployeeEntity
+        + delete(Long): void
+    }
+}
+
+' =============================================
+' PAQUETE REPOSITORY
+' =============================================
+package "com.example.demo.repository" <<repository>> {
+    interface EmployeeRepository {
+        ~ findByEmail(String): Optional<EmployeeEntity>
+    }
+}
+
+' =============================================
+' PAQUETE MODEL
+' =============================================
+package "com.example.demo.model" <<model>> {
+    class EmployeeEntity {
+        - id: Long
+        - firstName: String
+        - lastName: String
+        - email: String
+        --
+        + getId(): Long
+        + setId(Long): void
+        + getFirstName(): String
+        + setFirstName(String): void
+        + getLastName(): String
+        + setLastName(String): void
+        + getEmail(): String
+        + setEmail(String): void
+    }
+}
+
+' =============================================
+' PAQUETE SPRING (EXTERNO)
+' =============================================
+package "org.springframework.data.repository" <<spring>> {
+    interface CrudRepository<T, ID> {
+    }
+}
+
+' =============================================
+' RELACIONES
+' =============================================
+EmployeeMvcController -down-> EmployeeService : usa
+EmployeeService -down-> EmployeeRepository : usa
+EmployeeService -right-> EmployeeEntity : gestiona
+EmployeeRepository -down-|> CrudRepository : extiende
+
+' =============================================
+' LEYENDA
+' =============================================
+legend bottom
+    |= Color |= Paquete |
+    |<#BBDEFB>| Main Application |
+    |<#C8E6C9>| Controller |
+    |<#FFF9C4>| Service |
+    |<#FFCCBC>| Repository |
+    |<#E1BEE7>| Model |
+    |<#B2DFDB>| Spring Framework |
+endlegend
+
 @enduml

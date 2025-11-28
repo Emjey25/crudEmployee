@@ -1,0 +1,174 @@
+@startuml DiagramaSecuencia
+
+title Diagrama de Secuencia - CRUD Employee Application
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 10
+skinparam maxMessageSize 200
+
+skinparam participant {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    FontSize 11
+}
+
+skinparam actor {
+    BackgroundColor #C8E6C9
+    BorderColor #388E3C
+}
+
+skinparam database {
+    BackgroundColor #B2DFDB
+    BorderColor #00796B
+}
+
+skinparam note {
+    BackgroundColor #FFF9C4
+    BorderColor #F9A825
+    FontSize 10
+}
+
+skinparam sequence {
+    ArrowColor #455A64
+    LifeLineBorderColor #78909C
+    LifeLineBackgroundColor #ECEFF1
+    BoxBackgroundColor #FAFAFA
+    BoxBorderColor #90A4AE
+    DividerBackgroundColor #CFD8DC
+    DividerBorderColor #607D8B
+    GroupBackgroundColor #ECEFF1
+    GroupBorderColor #607D8B
+}
+
+actor Usuario as user #C8E6C9
+participant "Browser" as browser #BBDEFB
+participant "EmployeeMvcController" as controller #C8E6C9
+participant "EmployeeService" as service #FFF9C4
+participant "EmployeeRepository" as repository #FFCCBC
+database "H2 Database" as db #B2DFDB
+
+== Listar Empleados ==
+user -> browser: Accede a /employees
+browser -> controller: GET /employees
+activate controller
+controller -> service: getAll()
+activate service
+service -> repository: findAll()
+activate repository
+repository -> db: SELECT * FROM employees
+db --> repository: List<EmployeeEntity>
+repository --> service: Iterable<EmployeeEntity>
+deactivate repository
+service --> controller: Iterable<EmployeeEntity>
+deactivate service
+controller -> controller: model.addAttribute("employees", list)
+controller --> browser: "list-employees" (HTML)
+deactivate controller
+browser --> user: Muestra lista de empleados
+
+== Crear Nuevo Empleado (Formulario) ==
+user -> browser: Click en "Nuevo Empleado"
+browser -> controller: GET /employees/new
+activate controller
+controller -> controller: model.addAttribute("employee", new EmployeeEntity())
+controller --> browser: "add-edit-employee" (HTML)
+deactivate controller
+browser --> user: Muestra formulario vacío
+
+== Guardar Nuevo Empleado ==
+user -> browser: Completa formulario y envía
+browser -> controller: POST /employees (EmployeeEntity)
+activate controller
+controller -> service: createOrUpdate(employee)
+activate service
+service -> repository: existsById(null)
+activate repository
+repository --> service: false
+deactivate repository
+service -> repository: save(employee)
+activate repository
+repository -> db: INSERT INTO employees
+db --> repository: EmployeeEntity (con ID)
+repository --> service: EmployeeEntity
+deactivate repository
+service --> controller: EmployeeEntity
+deactivate service
+controller --> browser: redirect:/employees
+deactivate controller
+browser -> controller: GET /employees
+note right: Se ejecuta flujo "Listar Empleados"
+
+== Editar Empleado (Formulario) ==
+user -> browser: Click en "Editar" (id=1)
+browser -> controller: GET /employees/1/edit
+activate controller
+controller -> service: getById(1)
+activate service
+service -> repository: findById(1)
+activate repository
+repository -> db: SELECT * FROM employees WHERE id=1
+db --> repository: EmployeeEntity
+repository --> service: Optional<EmployeeEntity>
+deactivate repository
+service --> controller: Optional<EmployeeEntity>
+deactivate service
+controller -> controller: model.addAttribute("employee", employee)
+controller --> browser: "add-edit-employee" (HTML)
+deactivate controller
+browser --> user: Muestra formulario con datos
+
+== Actualizar Empleado ==
+user -> browser: Modifica datos y envía
+browser -> controller: POST /employees (EmployeeEntity con ID)
+activate controller
+controller -> service: createOrUpdate(employee)
+activate service
+service -> repository: existsById(id)
+activate repository
+repository -> db: SELECT EXISTS FROM employees WHERE id=?
+db --> repository: true
+repository --> service: true
+deactivate repository
+service -> repository: findById(id)
+activate repository
+repository -> db: SELECT * FROM employees WHERE id=?
+db --> repository: EmployeeEntity
+repository --> service: Optional<EmployeeEntity>
+deactivate repository
+service -> service: Actualiza campos (firstName, lastName, email)
+service -> repository: save(currentEmployee)
+activate repository
+repository -> db: UPDATE employees SET ... WHERE id=?
+db --> repository: EmployeeEntity
+repository --> service: EmployeeEntity
+deactivate repository
+service --> controller: EmployeeEntity
+deactivate service
+controller --> browser: redirect:/employees
+deactivate controller
+browser -> controller: GET /employees
+note right: Se ejecuta flujo "Listar Empleados"
+
+== Eliminar Empleado ==
+user -> browser: Click en "Eliminar" (id=1)
+browser -> controller: POST /employees/1/delete
+activate controller
+controller -> service: delete(1)
+activate service
+service -> repository: deleteById(1)
+activate repository
+repository -> db: DELETE FROM employees WHERE id=1
+db --> repository: void
+repository --> service: void
+deactivate repository
+service --> controller: void
+deactivate service
+controller --> browser: redirect:/employees
+deactivate controller
+browser -> controller: GET /employees
+note right: Se ejecuta flujo "Listar Empleados"
+
+@enduml

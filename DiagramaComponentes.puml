@@ -1,0 +1,138 @@
+@startuml DiagramaComponentes
+
+title Diagrama de Componentes - CRUD Employee Application
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam defaultFontSize 12
+skinparam defaultFontName Arial
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 40
+
+skinparam component {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    FontSize 11
+}
+skinparam package {
+    BackgroundColor<<presentation>> #BBDEFB
+    BackgroundColor<<controller>> #C8E6C9
+    BackgroundColor<<service>> #FFF9C4
+    BackgroundColor<<repository>> #FFCCBC
+    BackgroundColor<<model>> #E1BEE7
+    BackgroundColor<<data>> #B2DFDB
+    BackgroundColor<<config>> #ECEFF1
+    BorderColor #455A64
+    FontSize 13
+    FontStyle bold
+}
+skinparam database {
+    BackgroundColor #E8F5E9
+    BorderColor #388E3C
+}
+
+' =============================================
+' CAPA 1: PRESENTACIÓN
+' =============================================
+package "PRESENTACIÓN" <<presentation>> {
+    component [Browser\nCliente Web] as browser
+    component [list-employees.html] as listHtml
+    component [add-edit-employee.html] as formHtml
+}
+
+' =============================================
+' CAPA 2: CONTROLADORES
+' =============================================
+package "CONTROLADORES" <<controller>> {
+    component [RootController\nGET /] as rootCtrl
+    component [EmployeeMvcController\n/employees] as empCtrl
+}
+
+' =============================================
+' CAPA 3: SERVICIOS
+' =============================================
+package "SERVICIOS" <<service>> {
+    component [EmployeeService\nLógica de Negocio] as empService
+}
+
+' =============================================
+' CAPA 4: REPOSITORIO
+' =============================================
+package "REPOSITORIO" <<repository>> {
+    component [EmployeeRepository\nCrudRepository] as empRepo
+}
+
+' =============================================
+' CAPA 5: MODELO
+' =============================================
+package "MODELO" <<model>> {
+    component [EmployeeEntity\nEntidad JPA] as empEntity
+}
+
+' =============================================
+' CAPA 6: BASE DE DATOS
+' =============================================
+package "BASE DE DATOS" <<data>> {
+    database "H2 Database\nmem:demo_db" as h2db
+    component [schema.sql] as schema
+    component [data.sql] as data
+}
+
+' =============================================
+' CONFIGURACIÓN (lateral)
+' =============================================
+package "CONFIG" <<config>> {
+    component [application\n.properties] as appProps
+    component [pom.xml] as pom
+}
+
+' =============================================
+' RELACIONES (Flujo vertical ordenado)
+' =============================================
+
+' Usuario → Controladores
+browser -down-> rootCtrl
+browser -down-> empCtrl
+
+' Controladores → Vistas
+empCtrl -up-> listHtml
+empCtrl -up-> formHtml
+
+' Redirect entre controladores
+rootCtrl -right-> empCtrl : redirect
+
+' Controlador → Servicio
+empCtrl -down-> empService
+
+' Servicio → Repositorio
+empService -down-> empRepo
+
+' Repositorio → Modelo
+empRepo -down-> empEntity
+
+' Repositorio → Base de datos
+empRepo -down-> h2db
+
+' Scripts → BD
+schema -right-> h2db
+data -right-> h2db
+
+' Configuración (líneas punteadas)
+appProps .up.> h2db
+pom .up.> empService
+
+' =============================================
+' LEYENDA
+' =============================================
+legend bottom
+    | Color | Capa |
+    |<#BBDEFB>| Presentación |
+    |<#C8E6C9>| Controladores |
+    |<#FFF9C4>| Servicios |
+    |<#FFCCBC>| Repositorio |
+    |<#E1BEE7>| Modelo |
+    |<#B2DFDB>| Base de Datos |
+endlegend
+
+@enduml

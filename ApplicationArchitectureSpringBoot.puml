@@ -1,63 +1,149 @@
 @startuml
-!define RECTANGLE class
-!theme plain
 
 title Arquitectura de Aplicación Spring Boot - Sistema de Empleados
 
-package "Presentación Layer" {
-  [EmployeeMvcController] <<@Controller>>
-  [RootController] <<@Controller>>
-  [Templates] <<Thymeleaf>>
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam linetype ortho
+skinparam nodesep 40
+skinparam ranksep 30
+
+skinparam package {
+    BackgroundColor<<presentation>> #BBDEFB
+    BackgroundColor<<business>> #C8E6C9
+    BackgroundColor<<data>> #FFCCBC
+    BackgroundColor<<persistence>> #B2DFDB
+    BackgroundColor<<config>> #FFF9C4
+    BorderColor #455A64
+    FontStyle bold
+    FontSize 13
 }
 
-package "Lógica de Negocio Layer" {
-  [EmployeeService] <<@Service>>
+skinparam component {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    FontSize 11
 }
 
-package "Acceso a Datos Layer" {
-  [EmployeeRepository] <<@Repository>>
-  interface "CrudRepository<T,ID>" as CrudRepo
-  [EmployeeEntity] <<@Entity>>
+skinparam database {
+    BackgroundColor #E8F5E9
+    BorderColor #388E3C
 }
 
-package "Persistencia Layer" {
-  database "H2/MySQL Database" {
-    [employees table]
-  }
+skinparam note {
+    BackgroundColor #FFFDE7
+    BorderColor #FBC02D
+    FontSize 10
 }
 
-package "Configuración" {
-  [application.properties]
-  [schema.sql]
-  [data.sql]
-  [DemoApplication] <<@SpringBootApplication>>
+' =============================================
+' CAPA DE PRESENTACIÓN
+' =============================================
+package "Presentación Layer" <<presentation>> {
+    [EmployeeMvcController] <<@Controller>>
+    [RootController] <<@Controller>>
+    [Templates] <<Thymeleaf>>
 }
 
-' Relaciones entre capas
-[EmployeeMvcController] --> [EmployeeService] : uses
-[RootController] --> [Templates] : renders
-[EmployeeMvcController] --> [Templates] : renders
+' =============================================
+' CAPA DE LÓGICA DE NEGOCIO
+' =============================================
+package "Lógica de Negocio Layer" <<business>> {
+    [EmployeeService] <<@Service>>
+}
 
-[EmployeeService] --> [EmployeeRepository] : uses
-[EmployeeRepository] --> CrudRepo : extends
-[EmployeeRepository] --> [EmployeeEntity] : manages
+' =============================================
+' CAPA DE ACCESO A DATOS
+' =============================================
+package "Acceso a Datos Layer" <<data>> {
+    [EmployeeRepository] <<@Repository>>
+    interface "CrudRepository<T,ID>" as CrudRepo
+    [EmployeeEntity] <<@Entity>>
+}
 
-[EmployeeEntity] --> [employees table] : maps to
-[schema.sql] --> [employees table] : creates
-[data.sql] --> [employees table] : populates
+' =============================================
+' CAPA DE PERSISTENCIA
+' =============================================
+package "Persistencia Layer" <<persistence>> {
+    database "H2/MySQL Database" {
+        [employees table]
+    }
+}
 
-[DemoApplication] --> [application.properties] : loads config
+' =============================================
+' CONFIGURACIÓN
+' =============================================
+package "Configuración" <<config>> {
+    [application.properties]
+    [schema.sql]
+    [data.sql]
+    [DemoApplication] <<@SpringBootApplication>>
+}
 
-' Flujo de datos
-note right of [EmployeeMvcController] : Maneja requests HTTP\nGET /employees\nPOST /employees\nGET /employees/{id}/edit\nPOST /employees/{id}/delete
+' =============================================
+' RELACIONES ENTRE CAPAS
+' =============================================
+[EmployeeMvcController] -down-> [EmployeeService] : uses
+[RootController] -up-> [Templates] : renders
+[EmployeeMvcController] -up-> [Templates] : renders
 
-note right of [EmployeeService] : Lógica de negocio\n- getAll()\n- getById()\n- createOrUpdate()\n- delete()
+[EmployeeService] -down-> [EmployeeRepository] : uses
+[EmployeeRepository] -right-> CrudRepo : extends
+[EmployeeRepository] -down-> [EmployeeEntity] : manages
 
-note right of [EmployeeRepository] : Acceso a datos\nextends CrudRepository\n+ findByEmail()
+[EmployeeEntity] -down-> [employees table] : maps to
+[schema.sql] -right-> [employees table] : creates
+[data.sql] -right-> [employees table] : populates
 
-note right of [EmployeeEntity] : Entidad JPA\n@Entity employees\n- id (PK)\n- firstName\n- lastName\n- email (unique)
+[DemoApplication] -right-> [application.properties] : loads config
 
-' Tecnologías utilizadas
-note bottom : **Tecnologías:**\n- Spring Boot 3.x\n- Spring MVC\n- Spring Data JPA\n- Jakarta Persistence\n- Thymeleaf\n- H2/MySQL Database\n- Maven
+' =============================================
+' NOTAS INFORMATIVAS
+' =============================================
+note right of [EmployeeMvcController]
+    Maneja requests HTTP
+    GET /employees
+    POST /employees
+    GET /employees/{id}/edit
+    POST /employees/{id}/delete
+end note
+
+note right of [EmployeeService]
+    Lógica de negocio
+    - getAll()
+    - getById()
+    - createOrUpdate()
+    - delete()
+end note
+
+note right of [EmployeeRepository]
+    Acceso a datos
+    extends CrudRepository
+    + findByEmail()
+end note
+
+note right of [EmployeeEntity]
+    Entidad JPA
+    @Entity employees
+    - id (PK)
+    - firstName
+    - lastName
+    - email (unique)
+end note
+
+' =============================================
+' LEYENDA
+' =============================================
+legend bottom
+    |= Color |= Capa |
+    |<#BBDEFB>| Presentación |
+    |<#C8E6C9>| Lógica de Negocio |
+    |<#FFCCBC>| Acceso a Datos |
+    |<#B2DFDB>| Persistencia |
+    |<#FFF9C4>| Configuración |
+    
+    **Tecnologías:** Spring Boot 3.x | Spring MVC | Spring Data JPA | Thymeleaf | H2/MySQL | Maven
+endlegend
 
 @enduml

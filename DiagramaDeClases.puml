@@ -1,49 +1,57 @@
 @startuml
+
+title Diagrama de Clases - CRUD Employee Application
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
 skinparam classAttributeIconSize 0
 skinparam shadowing false
-skinparam stereotypeCBackgroundColor #DDE6F5
-skinparam stereotypeCFontColor #000000
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 40
 
-' ===== ENTIDAD =====
-class EmployeeEntity {
-    - id: Long
-    - firstName: String
-    - lastName: String
-    - email: String
-    + getId(): Long
-    + setId(Long)
-    + getFirstName(): String
-    + setFirstName(String)
-    + getLastName(): String
-    + setLastName(String)
-    + getEmail(): String
-    + setEmail(String)
+skinparam class {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    HeaderBackgroundColor #BBDEFB
+    FontSize 12
 }
 
-' ===== REPOSITORIO =====
-interface CrudRepository
-
-interface EmployeeRepository {
-    + findByEmail(String): Optional<EmployeeEntity>
+skinparam class<<Controller>> {
+    BackgroundColor #C8E6C9
+    BorderColor #388E3C
+    HeaderBackgroundColor #A5D6A7
 }
 
-EmployeeRepository --|> CrudRepository
-
-' ===== SERVICIO =====
-class EmployeeService {
-    - repository: EmployeeRepository
-    + getAll(): Iterable<EmployeeEntity>
-    + getById(Long): Optional<EmployeeEntity>
-    + createOrUpdate(EmployeeEntity): EmployeeEntity
-    + delete(Long)
+skinparam class<<Service>> {
+    BackgroundColor #FFF9C4
+    BorderColor #F9A825
+    HeaderBackgroundColor #FFF176
 }
 
-EmployeeService --> EmployeeRepository
-EmployeeService --> EmployeeEntity
+skinparam class<<Entity>> {
+    BackgroundColor #E1BEE7
+    BorderColor #7B1FA2
+    HeaderBackgroundColor #CE93D8
+}
 
-' ===== CONTROLADOR MVC =====
-class EmployeeMvcController {
+skinparam interface {
+    BackgroundColor #FFCCBC
+    BorderColor #E64A19
+    FontStyle italic
+}
+
+skinparam stereotype {
+    CBackgroundColor #ECEFF1
+}
+
+' =============================================
+' CAPA: CONTROLADOR
+' =============================================
+class EmployeeMvcController <<Controller>> {
     - service: EmployeeService
+    --
     + list(Model): String
     + createForm(Model): String
     + createOrUpdate(EmployeeEntity): String
@@ -51,6 +59,70 @@ class EmployeeMvcController {
     + delete(Long): String
 }
 
-EmployeeMvcController --> EmployeeService
+' =============================================
+' CAPA: SERVICIO
+' =============================================
+class EmployeeService <<Service>> {
+    - repository: EmployeeRepository
+    --
+    + getAll(): Iterable<EmployeeEntity>
+    + getById(Long): Optional<EmployeeEntity>
+    + createOrUpdate(EmployeeEntity): EmployeeEntity
+    + delete(Long): void
+}
+
+' =============================================
+' CAPA: REPOSITORIO
+' =============================================
+interface CrudRepository<T, ID> {
+    + findAll(): Iterable<T>
+    + findById(ID): Optional<T>
+    + save(T): T
+    + deleteById(ID): void
+    + existsById(ID): boolean
+}
+
+interface EmployeeRepository {
+    + findByEmail(String): Optional<EmployeeEntity>
+}
+
+' =============================================
+' CAPA: ENTIDAD
+' =============================================
+class EmployeeEntity <<Entity>> {
+    - id: Long
+    - firstName: String
+    - lastName: String
+    - email: String
+    --
+    + getId(): Long
+    + setId(Long): void
+    + getFirstName(): String
+    + setFirstName(String): void
+    + getLastName(): String
+    + setLastName(String): void
+    + getEmail(): String
+    + setEmail(String): void
+}
+
+' =============================================
+' RELACIONES
+' =============================================
+EmployeeMvcController -down-> EmployeeService : usa
+EmployeeService -down-> EmployeeRepository : usa
+EmployeeService -right-> EmployeeEntity : gestiona
+EmployeeRepository -up-|> CrudRepository : extiende
+EmployeeRepository -right-> EmployeeEntity : persiste
+
+' =============================================
+' LEYENDA
+' =============================================
+legend bottom
+    |= Color |= Capa |
+    |<#C8E6C9>| Controller |
+    |<#FFF9C4>| Service |
+    |<#FFCCBC>| Repository |
+    |<#E1BEE7>| Entity |
+endlegend
 
 @enduml
