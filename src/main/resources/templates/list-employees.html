@@ -14,7 +14,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FFE5D9 0%, #FFF0E6 50%, #E8D4F8 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -29,8 +29,8 @@
         }
         
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #FFD4B8 0%, #FFC4A3 100%);
+            color: #8B4513;
             padding: 40px;
             text-align: center;
         }
@@ -54,19 +54,21 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #F8C8B8 0%, #F5B8A8 100%);
+            color: #8B4513;
             text-decoration: none;
             padding: 15px 30px;
             border-radius: 50px;
             font-weight: 500;
             transition: all 0.3s ease;
             margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(248, 200, 184, 0.4);
         }
         
         .add-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 25px rgba(248, 200, 184, 0.6);
+            background: linear-gradient(135deg, #FFCDB8 0%, #FFC0A8 100%);
         }
         
         .table-container {
@@ -82,12 +84,12 @@
         }
         
         th {
-            background: #f8f9fa;
+            background: #FFF5EE;
             padding: 20px;
             text-align: left;
             font-weight: 600;
-            color: #495057;
-            border-bottom: 2px solid #e9ecef;
+            color: #8B6B47;
+            border-bottom: 2px solid #FFE4D6;
         }
         
         td {
@@ -97,7 +99,7 @@
         }
         
         tr:hover {
-            background: #f8f9fa;
+            background: #FFF8F3;
         }
         
         .actions {
@@ -120,23 +122,27 @@
         }
         
         .btn-edit {
-            background: #28a745;
-            color: white;
+            background: #B8E6C8;
+            color: #2D5F3F;
+            box-shadow: 0 3px 10px rgba(184, 230, 200, 0.4);
         }
         
         .btn-edit:hover {
-            background: #218838;
+            background: #A8DCBB;
             transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(184, 230, 200, 0.6);
         }
         
         .btn-delete {
-            background: #dc3545;
-            color: white;
+            background: #F5C8C8;
+            color: #8B4141;
+            box-shadow: 0 3px 10px rgba(245, 200, 200, 0.4);
         }
         
         .btn-delete:hover {
-            background: #c82333;
+            background: #F0B8B8;
             transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(245, 200, 200, 0.6);
         }
         
         .employee-name {
